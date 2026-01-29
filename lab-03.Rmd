@@ -18,6 +18,7 @@ nobel <- read_csv("data/nobel.csv")
 ## Exercises
 
 ### Exercise 1
+There are 935 observations and 26 variables. Each row represents an individual Nobel Prize winner. A single person can appear more than once if they won multiple prizes in different years or categories, such as Marie Curie. 
 ```{r data observation}
 head(nobel)
 ```
@@ -47,28 +48,56 @@ nobel_living <- nobel_living %>%
 nobel_living_science <- nobel_living %>%
   filter(category %in% c("Physics", "Medicine", "Chemistry", "Economics"))
 ```
+Yes, it has 228 observations.
 
 ### Exercise 3
 ```{r Visualization}
 ggplot(data = nobel_living_science, aes(x = country_us)) + 
-  geom_boxplot() + 
+  geom_bar() + 
   facet_wrap(~category) + 
+  labs(title = "Living Nobel Laureates: US vs Other", 
+       y = "Number of Laureates", 
+       x = "Location at time of prize") + 
+  theme_minimal() +
   coord_flip()
 ```
 
+From the bar plots shown above, the Buzzfeed headline is supported. The majority of living Nobel laureates were based in the USA at the time they won their prizes. However, there is no information about whether these USA winners were origins of the US or immigrants. 
 
 
 ### Exercise 4
 ```{r}
-
+nobel_living_science <- nobel_living_science %>% 
+  mutate(
+    born_country_us = if_else(born_country == "USA", "USA", "Other")
+  )
 ```
 
-...
+```{r}
+nobel_living_science %>%
+  count(born_country_us)
+```
+There are 105 Nobel Prize winners are born in the US. 
 
 ### Exercise 5
-
-...
+```{r}
+ggplot(data = nobel_living_science, aes(x = country_us, fill = born_country_us)) + 
+  geom_bar() + 
+  facet_wrap(~category) + 
+  labs(title = "Living Nobel Laureates: US vs Other", 
+       y = "Number of Laureates", 
+       x = "Location at time of prize") + 
+  theme_minimal() +
+  coord_flip()
+```
+The data strongly supports the Buzzfeed claim that immigration is vital to American science. While a high number of living Nobel laureates were based in the USA at the time of their award, a noticeable portion of those winners were born in a different country, specially in the areas of chemistry, medicine, and physics. 
 
 ### Exercise 6
+```{r}
+nobel_living_science %>%
+  filter(country == "USA", born_country != "USA") %>%
+  count(born_country) %>%
+  arrange(desc(n))
+```
 
-...
+For living Nobel laureates who won their prize in the US but were born outside of it, Germany and the United Kingdom are tied for the most common birth country with 7 laureates each
